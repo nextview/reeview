@@ -209,32 +209,32 @@ static int get_guid(struct cstate *cs, char *param)
 	print_debug("Name: %s", name);
 
 	if (GetAdaptersInfo(ai, &len) != ERROR_SUCCESS) 
-		return print_error("GetAdaptersInfo()");
+		return print_error("GetAdaptersInfo()"); // Esto debe de ser para conseguir informacion del adaptador 
 
-	p = ai;
+	p = ai;// Se copia lo conseguido a p
 	while (p) {
 		print_debug("get_guid: name: %s desc: %s",
 			    p->AdapterName, p->Description);
 
 		found = (param && strcmp(p->AdapterName, param) == 0)
-			|| strstr(p->Description, name);
+			|| strstr(p->Description, name); // Aqui comprobamos si hemos encontrado lo que queriamos que sera?
 
 		/* XXX */
-		if (cs->cs_debug) {
-			char yea[512];
+		if (cs->cs_debug) { // Parece de por si queremos debuguear...
+			char yea[512]; // Esto esta para dar falsos positivos si se queria
 
 			printf("Does this look like your card? [y/n]\n");
 			yea[0] = 0;
 			fgets(yea, sizeof(yea), stdin);
 			if (yea[0] == 'y')
-				found = 1;
+				found = 1; 
 			else
 				found = 0;
 		}
 		
 		if (found) {
 			snprintf(cs->cs_guid, sizeof(cs->cs_guid)-1, "%s",
-				 p->AdapterName);
+				 p->AdapterName); // Aqui escribe p-> AdapterName a cs->cs_guid
 			return 0;
 		}
 
@@ -251,17 +251,18 @@ static int open_key(struct cstate *cs, char *name)
 
 	/* open key */
 	snprintf(key, sizeof(key)-1, "%s\\%s", ADAPTER_KEY, name);
-	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, key, 0, KEY_ALL_ACCESS,
-			 &cs->cs_key) != ERROR_SUCCESS)
+	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, key, 0, KEY_ALL_ACCESS, &cs->cs_key) != ERROR_SUCCESS)
 		return print_error("RegOpenKeyEx()");
+/*
+ * Aqui parece que acaba de abrir un registro, y en el siguiente, compara el valor del registro con ¿¿REG_SZ??
+ */
 
 	/* check if its our guid */
-	if ((RegQueryValueEx(cs->cs_key, "NetCfgInstanceId", NULL, &dt,
-	    		     (unsigned char*)key, &len) == ERROR_SUCCESS) 
-	     && (dt == REG_SZ) && (strcmp(key, cs->cs_guid) == 0))
+	if ((RegQueryValueEx(cs->cs_key, "NetCfgInstanceId", NULL, &dt, (unsigned char*)key, &len) == ERROR_SUCCESS) && (dt == REG_SZ) && (strcmp(key, cs->cs_guid) == 0))
 		return 1; /* closekey done by cleanup */
 
 	/* nope */
+
 	RegCloseKey(cs->cs_key);
 	cs->cs_key = NULL;
 
@@ -270,20 +271,19 @@ static int open_key(struct cstate *cs, char *name)
 
 static int open_conf(struct cstate *cs)
 {
-        HKEY ak47;
+        HKEY ak47; // variable de llave de registro
 	int rc = -1;
 	int i;
 	char name[256];
 	DWORD len;
 
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, ADAPTER_KEY, 0, KEY_READ, &ak47)
-	    != ERROR_SUCCESS)
+	    != ERROR_SUCCESS) // ERROR_SUCCESS parece ser lo que se devuelve cuando sale BIEN
 		return print_error("RegOpenKeyEx()");
 
 	for (i = 0;; i++) {
 		len = sizeof(name);
-		if (RegEnumKeyEx(ak47, i, name, &len, NULL, NULL, NULL, NULL)
-		    != ERROR_SUCCESS)
+		if (RegEnumKeyEx(ak47, i, name, &len, NULL, NULL, NULL, NULL)!= ERROR_SUCCESS)
 			break;
 
 		rc = open_key(cs, name);
@@ -293,7 +293,8 @@ static int open_conf(struct cstate *cs)
 			rc = -1;
 	}
 
-	RegCloseKey(ak47);
+
+		RegCloseKey(ak47);
 	return rc;
 }
 
@@ -302,17 +303,20 @@ static int check_param(struct cstate *cs, char **p)
 	char *param = *p;
 
 	/* assume it's ifname */
-	if (strncmp(param, "eth", 3) == 0) {
-		snprintf(cs->cs_param, sizeof(cs->cs_param), "%s", param);
-		snprintf(cs->cs_ifreq.ifr_name,
-			 sizeof(cs->cs_ifreq.ifr_name), "%s", cs->cs_param);
+	if (strncmp(param, "eth", 3) == 0) 
+	{
+		snprintf(cs->cs_param, sizeof(cs->cs_param), "%s", param);//Parece que tiene la mania de meter los strings en la estructura con esta funcion
+		snprintf(cs->cs_ifreq.ifr_name, sizeof(cs->cs_ifreq.ifr_name), "%s", cs->cs_param);
 		
 		cs->cs_ioctls = socket(PF_INET, SOCK_DGRAM, 0);
-		if (cs->cs_ioctls == -1) {
+		if (cs->cs_ioctls == -1) 
+		{
 			cs->cs_ioctls = 0;
 			return print_error("socket()");
 		}
-	} else if(strcmp(param, "debug") == 0) {
+	}
+	else if(strcmp(param, "debug") == 0) 
+	{
 		cs->cs_debug = 1;
 		*p = NULL;
 	}
@@ -330,7 +334,8 @@ int cygwin_init(char *param)
 	if (pthread_mutex_init(&cs->cs_mtx, NULL))
 		return print_error("pthread_mutex_init()");
 
-	if (param) {
+	if (param) 
+	{
 		if (check_param(cs, &param))
 			return -1;
 	}
@@ -383,7 +388,8 @@ static int read_single_packet(struct cstate *cs, unsigned char *buf, int len,
         int align, plen;
         
         /* read data if necessary */
-        if (totlen == 0) {
+        if (totlen == 0) 
+	{
 		/* XXX can't kill iface if we're reading */
 		if (pthread_mutex_lock(&cs->cs_mtx))
 			return -1;
@@ -437,9 +443,11 @@ int cygwin_sniff(void *buf, int len, struct rx_info *ri)
 		return rc;
 
 	/* check if we're restarting */
-	while (cs->cs_restarting && tries--) {
+	while (cs->cs_restarting && tries--) 
+	{
 		/* try again */
-		if (cs->cs_restarting == 2) {
+		if (cs->cs_restarting == 2) 
+		{
 			cs->cs_restarting = 0;
 			return cygwin_sniff(buf, len, ri);
 		}
@@ -460,8 +468,10 @@ static int do_get_mac_win(struct cstate *cs, unsigned char *mac)
 		return -1;
 
 	p = ai;
-	while (p) {
-		if (strcmp(cs->cs_guid, p->AdapterName) == 0) {
+	while (p) 
+	{
+		if (strcmp(cs->cs_guid, p->AdapterName) == 0) 
+		{
 			memcpy(mac, p->Address, 6);
 			return 0;
 		}
@@ -499,8 +509,7 @@ static int is_us2(struct cstate *cs, HDEVINFO *hdi, SP_DEVINFO_DATA *did)
               
         if (cs) {} /* XXX unused */
               
-        if (!SetupDiGetDeviceRegistryProperty(*hdi, did, SPDRP_DEVICEDESC, &dt,
-                                              (unsigned char*)buf, len, &len))
+        if (!SetupDiGetDeviceRegistryProperty(*hdi, did, SPDRP_DEVICEDESC, &dt, (unsigned char*)buf, len, &len))
                 return 0;
               
         if (dt != REG_SZ)
@@ -518,8 +527,7 @@ static int reset_state(HDEVINFO *hdi, SP_DEVINFO_DATA *did, DWORD state)
         parm.Scope = DICS_FLAG_GLOBAL;
         parm.StateChange = state;
 
-        if (!SetupDiSetClassInstallParams(*hdi, did, (SP_CLASSINSTALL_HEADER*)
-                                          &parm, sizeof(parm)))
+        if (!SetupDiSetClassInstallParams(*hdi, did, (SP_CLASSINSTALL_HEADER*)&parm, sizeof(parm)))
                 return -1;
 
         if (!SetupDiCallClassInstaller(DIF_PROPERTYCHANGE, *hdi, did))
@@ -612,24 +620,23 @@ int cygwin_set_mac(unsigned char *mac)
         
 	/* convert */
         str[0] = 0;
-        for (i = 0; i < 6; i++) {
-                char tmp[3];
-                
+        for (i = 0; i < 6; i++) 
+	{
+                char tmp[3];        
                 if (sprintf(tmp, "%.2X", *mac++) != 2)
 			return -1;
                 strcat(str, tmp);
         }
 
 	/* check old */
-	if ((RegQueryValueEx(cs->cs_key, key, NULL, &dt, (unsigned char*)
-	    strold, &len) == ERROR_SUCCESS) && (dt == REG_SZ)) {
+	if ((RegQueryValueEx(cs->cs_key, key, NULL, &dt, (unsigned char*)strold, &len) == ERROR_SUCCESS) && (dt == REG_SZ)) 
+	{
 		if (strcmp(str, strold) == 0)
 			return 0;
 	}
        
 	/* set */
-	if (RegSetValueEx(cs->cs_key, key, 0, REG_SZ,
-			(unsigned char *)str, strlen(str)+1) != ERROR_SUCCESS)
+	if (RegSetValueEx(cs->cs_key, key, 0, REG_SZ, (unsigned char *)str, strlen(str)+1) != ERROR_SUCCESS)
                 return -1;
               
         if (reset(cs) == -1)
@@ -648,7 +655,8 @@ void cygwin_close(void)
 	if (cs->cs_key)
 		RegCloseKey(cs->cs_key);
 
-	if (cs->cs_lib) {
+	if (cs->cs_lib) 
+	{
 		cs->cs_F2();
 		dlclose(cs->cs_lib);
 	}
