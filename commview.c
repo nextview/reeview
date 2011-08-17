@@ -36,6 +36,12 @@ struct CV_Header2 {
         char Unknown3[6]; // Unknown
 };
 
+
+/*
+ * Declara una variable llamada _cs, que parece ser una especie de super estructura
+ * que utiliza para almacenar todo tipo de información sobre el estado de la conexión 
+ */
+
 struct cstate {
 	char		cs_param[256];
 	int		cs_ioctls;
@@ -44,10 +50,13 @@ struct cstate {
 	HKEY		cs_key;
 	int		cs_chan;
 	volatile int	cs_restarting;
-	void		*cs_lib;
+	void		*cs_lib; // Puntero a libreria dinamica para las funciones de abajo
 	pthread_mutex_t	cs_mtx;
 	int		cs_debug;
-
+	
+/*
+ * Aqui se guardaran los punteros a funciones que estan dentro de una dll
+ */
 	char		(__cdecl *cs_F1)(int Code);
 	char		(__cdecl *cs_F2)(void);
 	char		(__cdecl *cs_T1)(int Size, unsigned char *Buffer);
@@ -58,39 +67,47 @@ struct cstate {
 	int		(*cs_SC)(int band);
 } _cs;
 
-static struct cstate *get_cs(void)
+/*
+ * Esta función retorna la variable _cs (global)
+ * 
+ */
+ 
+static struct cstate *get_cs(void) 
 {
-	return &_cs;
+	return &_cs; 
 }
 
-static int print_error(char *fmt, ...)
+static int print_error(char *fmt, ...) // ... -> es una manera de decir que recibe un numero indeterminado de argumentos
 {
 	va_list ap;
 
-	va_start(ap, fmt);
-	vprintf(fmt, ap);
-	va_end(ap);
-	printf("\n");
+	va_start(ap, fmt);// Inicializa la variable ap para que lo pueda usar 
+	vprintf(fmt, ap);// Segun la sintaxis que he estado estudiando para conseguir ilimitados argumentos, parece que solo es para tener un argumento de tipo desconocido
+	va_end(ap);// Libera la variable ap
+	printf("\n"); // Y pone un salto de linea en el la pantalla (seguramente log)
 
-	return -1;
+	return -1; // Devuelve error
 }
 
 static void print_debug(char *fmt, ...)
 {
-	struct cstate *cs = get_cs();
-	va_list ap;
+	struct cstate *cs = get_cs(); //inicializa la direccion de la variable cs a la de _cs
+	va_list ap; // Crea una variable de control de argumentos variables
 
-	if (!cs->cs_debug)
-		return;
+	if (!cs->cs_debug) // Comprueba que esté configurado en modo debug
+		return; // Sale si no lo esta
 
-	va_start(ap, fmt);
-	vprintf(fmt, ap);
-	va_end(ap);
-	printf("\n");
+	va_start(ap, fmt); //Inicializa la variable de lista
+	vprintf(fmt, ap); // Saca un solo argumento de tipo desconocido
+	va_end(ap); // Libera la variable ap
+	printf("\n"); // Pone un salto de linea
 }
 
 static int do_init_lib(struct cstate *cs)
 {
+/*
+ * Esta función inicializa las librerias a traves de los punteros a funciones de la estructura
+ */
 	/* init */
         if (!cs->cs_F1(BUFSIZE))
 		return print_error("F1");
@@ -108,13 +125,13 @@ static int do_init_lib(struct cstate *cs)
 
 static int init_lib(struct cstate *cs)
 {
-	char *lib = "ca2k.dll";
-	void *ca2k_dll;
+	char *lib = "ca2k.dll";// Se guarda en un array el nombre de una libreria dinamica
+	void *ca2k_dll; // puntero de una dll
 
-	ca2k_dll = dlopen(lib, RTLD_LAZY);
-	if (!ca2k_dll)
+	ca2k_dll = dlopen(lib, RTLD_LAZY); // Se abre la libreria dinamica
+	if (!ca2k_dll) 
 		return print_error("dlopen(%s)", lib);
-	cs->cs_lib = ca2k_dll;
+	cs->cs_lib = ca2k_dll; // Se guarda el puntero a la libreria en cs_lib
 
         // Initialise
         cs->cs_F1 = dlsym(ca2k_dll, "F1");
@@ -131,6 +148,13 @@ static int init_lib(struct cstate *cs)
 	// Get Adapter Name 
 	cs->cs_GN = dlsym(ca2k_dll, "GN");
 
+// los nombres "F1","T1" deben estar definidos en algun sitio.. habra que buscar
+
+/*
+ * Si no se han inicializado todas la funciones, salta error, y acaba inicializando
+ * las librerias
+ */
+	
         if (!(cs->cs_F1 && cs->cs_T1 && cs->cs_CC && cs->cs_S1 && cs->cs_S5
 	      && cs->cs_F2 && cs->cs_GN))
 		return print_error("Can't find syms");
@@ -140,18 +164,22 @@ static int init_lib(struct cstate *cs)
 
 static int get_name(struct cstate *cs, char *name)
 {
-	wchar_t wname[1024];
+	wchar_t wname[1024]; // tipo de dato valido para utilizar caracteres no ASCII
 	unsigned int i;
 
-	if (!(cs->cs_GN(wname) & 1))
+	if (!(cs->cs_GN(wname) & 1) ) // En teoria, con esto esta consiguiendo el nombre del ap
 		return print_error("GN()");
 
 	/* XXX */
-	for (i = 0; i < (sizeof(wname)/sizeof(wchar_t)); i++) {
+	for (i = 0; i < (sizeof(wname)/sizeof(wchar_t)); i++) { // localizamos cuantos caracteres tiene el nombre
 		if (wname[i] == 0)
 			break;
 
-		*name++ = (char) ((unsigned char) wname[i]);
+		*name++ = (char) ((unsigned char) wname[i]); // No estoy seguro de que es esto
+/*
+ * Parece que es una especie de contador, pero no entiendo el sentido de poner ese igual
+ * ya lo repasare mas tarde
+ */
 	}
 	*name = 0;
 
