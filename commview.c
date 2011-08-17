@@ -19,6 +19,7 @@
 #include "tap-win32/common.h"
 
 #define BUFSIZE 0x3E8000
+// El tamaño con el que se inicializa una funcion de la libreria
 
 struct CV_Header {
         unsigned int TickCount; // GetTickCount() / 1000 at time of packet
@@ -51,7 +52,7 @@ struct cstate {
 	int		cs_chan;
 	volatile int	cs_restarting;
 	void		*cs_lib; // Puntero a libreria dinamica para las funciones de abajo
-	pthread_mutex_t	cs_mtx;
+	pthread_mutex_t	cs_mtx; // un mecanismo de control de sincronizacion mutex
 	int		cs_debug;
 	
 /*
@@ -82,7 +83,7 @@ static int print_error(char *fmt, ...) // ... -> es una manera de decir que reci
 	va_list ap;
 
 	va_start(ap, fmt);// Inicializa la variable ap para que lo pueda usar 
-	vprintf(fmt, ap);// Segun la sintaxis que he estado estudiando para conseguir ilimitados argumentos, parece que solo es para tener un argumento de tipo desconocido
+	vprintf(fmt, ap);// Segun lo que he visto, esta función imprime todo lo que le llega.
 	va_end(ap);// Libera la variable ap
 	printf("\n"); // Y pone un salto de linea en el la pantalla (seguramente log)
 
@@ -168,7 +169,7 @@ static int get_name(struct cstate *cs, char *name)
 	unsigned int i;
 
 	if (!(cs->cs_GN(wname) & 1) ) // En teoria, con esto esta consiguiendo el nombre del ap
-		return print_error("GN()");
+		return print_error("GN()"); // Si no devuelve nada, aqui se devuelve -1
 
 	/* XXX */
 	for (i = 0; i < (sizeof(wname)/sizeof(wchar_t)); i++) { // localizamos cuantos caracteres tiene el nombre
@@ -178,7 +179,11 @@ static int get_name(struct cstate *cs, char *name)
 		*name++ = (char) ((unsigned char) wname[i]); // No estoy seguro de que es esto
 /*
  * Parece que es una especie de contador, pero no entiendo el sentido de poner ese igual
- * ya lo repasare mas tarde
+ * ya lo repasare mas tarde.
+ * Acabo de darme cuenta de que es posible que lo que este haciendo, sea que ya que no va a volver a pasar por ese
+ * puntero, puede estar modificando directamente el puntero del nombre, en cuyo caso, estaria convirtiendo el nombre a 
+ * un char (¿¿??), con su consiguiente perdida de informacion, y finalizando el array para darle el tratamiento de un
+ * string
  */
 	}
 	*name = 0;
@@ -188,18 +193,22 @@ static int get_name(struct cstate *cs, char *name)
 
 static int get_guid(struct cstate *cs, char *param)
 {
-	IP_ADAPTER_INFO ai[16];
-	DWORD len = sizeof(ai);
-	PIP_ADAPTER_INFO p;
-	char name[1024];
-	int found;
+	IP_ADAPTER_INFO ai[16]; /* 
+				 * No entiendo el sentido de tener espacio para 16 adaptadores de red de todos modos
+				 * esta estructura es de Windows: http://msdn.microsoft.com/en-us/library/aa366062(v=vs.85).aspx
+				 */	
+	DWORD len = sizeof(ai); // Esta parece estar destinada a tener el tamaño que ocupa un puntero a estructura 
+				// http://msdn.microsoft.com/en-us/library/cc230318
+	PIP_ADAPTER_INFO p; // Este parece ser un puntero a una estructura de adaptador
+	char name[1024]; // Sitio para el nombre
+	int found; // Esto tiene toda la pinta de ser un flag
 
 	if (get_name(cs, name) == -1)
 		return print_error("get_name()");
 
 	print_debug("Name: %s", name);
 
-	if (GetAdaptersInfo(ai, &len) != ERROR_SUCCESS)
+	if (GetAdaptersInfo(ai, &len) != ERROR_SUCCESS) 
 		return print_error("GetAdaptersInfo()");
 
 	p = ai;
