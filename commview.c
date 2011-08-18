@@ -281,7 +281,8 @@ static int open_conf(struct cstate *cs)
 	    != ERROR_SUCCESS) // ERROR_SUCCESS parece ser lo que se devuelve cuando sale BIEN
 		return print_error("RegOpenKeyEx()");
 
-	for (i = 0;; i++) {
+	for (i = 0;; i++) 
+	{
 		len = sizeof(name);
 		if (RegEnumKeyEx(ak47, i, name, &len, NULL, NULL, NULL, NULL)!= ERROR_SUCCESS)
 			break;
