@@ -1,1 +1,11 @@
 This work, is licensed under GPLv3.
+
+Este trabajo esta licenciado bajo GPLv3.
+
+Esta prohibido, absolutamente prohibido:
+
+- Generar mas documentación a traves del doxygen, vamos ejecutar el doxygen para ver como queda, me acabo de dar cuenta que crece rápido lo que ocupa.
+- Incluir binarios en el repositorio, como por ejemplo compilaciones o programas objeto
+- Crear branches o tags
+
+
