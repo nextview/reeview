@@ -100,7 +100,8 @@ struct cstate {
 	\fn static struct cstate *get_cs(void) 
 	
 	\brief Devuelve la estructura global _cs
-	
+
+	\return	_cs La estructura global que contiene los datos con los que se trabaja.	
 
 */
  
@@ -108,6 +109,18 @@ static struct cstate *get_cs(void)
 {
 	return &_cs; 
 }
+
+/*!
+
+	\fn static int print_error(char *fmt, ...)
+
+	\brief Saca por el identificador 1 (stdin) el texto que reciba
+
+	\param *fmt conjunto de argumentos con formato tipo printf
+
+	\return Devuelve -1 para señalar que ha habido un error
+
+*/
 
 static int print_error(char *fmt, ...) // ... -> es una manera de decir que recibe un numero indeterminado de argumentos
 {
@@ -120,6 +133,18 @@ static int print_error(char *fmt, ...) // ... -> es una manera de decir que reci
 
 	return -1; // Devuelve error
 }
+
+
+/*!
+
+	\fn static int print_error(char *fmt, ...)
+
+	\brief Saca por el identificador 1 (stdin) el texto que reciba
+
+	\param *fmt conjunto de argumentos con formato tipo printf
+
+*/
+
 
 static void print_debug(char *fmt, ...)
 {
@@ -135,11 +160,23 @@ static void print_debug(char *fmt, ...)
 	printf("\n"); // Pone un salto de linea
 }
 
+
+/*!
+
+	\fn static int do_init_lib(struct cstate *cs)
+
+	\param *cs Recibe una estructura cstate y rellena los punteros de funciones
+
+	\return Devuelve si ha habido error o success
+
+	\brief	Inicializa las librerias a través de los punteros a funciones de la estructura
+
+*/
+
+
 static int do_init_lib(struct cstate *cs)
 {
-/*
- * Esta función inicializa las librerias a traves de los punteros a funciones de la estructura
- */
+
 	/* init */
         if (!cs->cs_F1(BUFSIZE))
 		return print_error("F1");
