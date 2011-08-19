@@ -46,6 +46,13 @@ struct CV_Header {
         int Unknown;            // Not sure what this is.
 };
 
+/*!
+	\struct CV_Header2
+
+	Esta estructura, parece que es una cabecera sobre los datos que da el
+	sistema para saber si se ha recibido bien el paquete.
+
+*/
 struct CV_Header2 {
         char ErrorFlag;   // ErrorFlag & 1 = CRC error
         char Unknown2[6]; // Unknown
@@ -54,10 +61,14 @@ struct CV_Header2 {
 };
 
 
-/*
- * Declara una variable llamada _cs, que parece ser una especie de super estructura
- * que utiliza para almacenar todo tipo de información sobre el estado de la conexión 
- */
+/*!
+
+	\struct cstate
+
+	Declara una variable llamada _cs, que parece ser una especie de super estructura
+	que utiliza para almacenar todo tipo de información sobre el estado de la conexión 
+
+*/
 
 struct cstate {
 	char		cs_param[256];
@@ -84,10 +95,14 @@ struct cstate {
 	int		(*cs_SC)(int band);
 } _cs;
 
-/*
- * Esta función retorna la variable _cs (global)
- * 
- */
+/*!
+
+	\fn static struct cstate *get_cs(void) 
+	
+	\brief Devuelve la estructura global _cs
+	
+
+*/
  
 static struct cstate *get_cs(void) 
 {
