@@ -18,9 +18,25 @@
 #include "osdep.h"
 #include "tap-win32/common.h"
 
-#define BUFSIZE 0x3E8000
-// El tamaño con el que se inicializa una funcion de la libreria
+#define BUFSIZE 0x3E8000 
+/*!
+	\def BUFSIZE
+ 
+	\brief Tamaño estandar para la inicializacion de una libreria 
+	desconocida
 
+	Se supone que es el tamaño de un buffer, pero se desconoce su 
+procedencia y su importancia. En algún momento descubriremos para qué sirve
+
+*/
+
+/*! 
+	\struct CV_Header
+
+	Esta estructura parece que es necesaria usarla, pero al
+	parecer, no se sabe muy bien lo que es. 
+
+*/
 struct CV_Header {
         unsigned int TickCount; // GetTickCount() / 1000 at time of packet
         unsigned int Micros;    // Microsecond counter at time of packet

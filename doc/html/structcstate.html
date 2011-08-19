@@ -19,8 +19,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Buscar');
  <tbody>
  <tr style="height: 56px;">
   <td style="padding-left: 0.5em;">
-   <div id="projectname">reeview&#160;<span id="projectnumber">0.0</span></div>
-   <div id="projectbrief">New version of the commview</div>
+   <div id="projectname">reeview&#160;<span id="projectnumber">0.0.1</span></div>
+   <div id="projectbrief">Nueva version de commview.dll</div>
   </td>
  </tr>
  </tbody>
@@ -29,7 +29,8 @@ var searchBox = new SearchBox("searchBox", "search",false,'Buscar');
   <div id="navrow1" class="tabs">
     <ul class="tablist">
       <li><a href="index.html"><span>Página&#160;principal</span></a></li>
-      <li class="current"><a href="annotated.html"><span>Clases</span></a></li>
+      <li class="current"><a href="annotated.html"><span>Estructuras&#160;de&#160;Datos</span></a></li>
+      <li><a href="dirs.html"><span>Directorios</span></a></li>
       <li id="searchli">
         <div id="MSearchBox" class="MSearchBoxInactive">
         <span class="left">
@@ -50,22 +51,20 @@ var searchBox = new SearchBox("searchBox", "search",false,'Buscar');
   </div>
   <div id="navrow2" class="tabs2">
     <ul class="tablist">
-      <li><a href="annotated.html"><span>Lista&#160;de&#160;clases</span></a></li>
-      <li><a href="classes.html"><span>Índice&#160;de&#160;clases</span></a></li>
+      <li><a href="annotated.html"><span>Estructura&#160;de&#160;datos</span></a></li>
+      <li><a href="classes.html"><span>Índice&#160;de&#160;estructura&#160;de&#160;datos</span></a></li>
     </ul>
   </div>
 </div>
 <div class="header">
   <div class="summary">
 <a href="#pub-methods">Métodos públicos</a> &#124;
-<a href="#pub-attribs">Atributos públicos</a>  </div>
+<a href="#pub-attribs">Campos de datos</a>  </div>
   <div class="headertitle">
 <h1>Referencia de la Estructura cstate</h1>  </div>
 </div>
 <div class="contents">
-<!-- doxytag: class="cstate" -->
-<p><a href="structcstate-members.html">Lista de todos los miembros.</a></p>
-<table class="memberdecls">
+<!-- doxytag: class="cstate" --><table class="memberdecls">
 <tr><td colspan="2"><h2><a name="pub-methods"></a>
 Métodos públicos</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a607eca86d251f1e6c36ed12451f37b5f"></a><!-- doxytag: member="cstate::char" ref="a607eca86d251f1e6c36ed12451f37b5f" args="(__cdecl *cs_F1)(int Code)" -->
@@ -83,7 +82,7 @@ Métodos públicos</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="ac467c6f1877c001ef9119312231adf42"></a><!-- doxytag: member="cstate::int" ref="ac467c6f1877c001ef9119312231adf42" args="(__cdecl *cs_GN)(wchar_t *)" -->
 &#160;</td><td class="memItemRight" valign="bottom"><b>int</b> (__cdecl *cs_GN)(wchar_t *)</td></tr>
 <tr><td colspan="2"><h2><a name="pub-attribs"></a>
-Atributos públicos</h2></td></tr>
+Campos de datos</h2></td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a30472fdc1772fc0e234abfc280063553"></a><!-- doxytag: member="cstate::cs_param" ref="a30472fdc1772fc0e234abfc280063553" args="[256]" -->
 char&#160;</td><td class="memItemRight" valign="bottom"><b>cs_param</b> [256]</td></tr>
 <tr><td class="memItemLeft" align="right" valign="top"><a class="anchor" id="a15c6066c353e391e28b90bf9eb6f4f62"></a><!-- doxytag: member="cstate::cs_ioctls" ref="a15c6066c353e391e28b90bf9eb6f4f62" args="" -->
@@ -112,7 +111,7 @@ int&#160;</td><td class="memItemRight" valign="bottom"><b>Length</b></td></tr>
 int(*&#160;</td><td class="memItemRight" valign="bottom"><b>cs_SC</b> )(int band)</td></tr>
 </table>
 <hr/>La documentación para esta estructura fue generada a partir del siguiente fichero:<ul>
-<li>src/commview.c</li>
+<li>/home/javier/reeview/src/commview.c</li>
 </ul>
 </div>
 <!--- window showing the filter options -->
@@ -120,7 +119,7 @@ int(*&#160;</td><td class="memItemRight" valign="bottom"><b>cs_SC</b> )(int band
      onmouseover="return searchBox.OnSearchSelectShow()"
      onmouseout="return searchBox.OnSearchSelectHide()"
      onkeydown="return searchBox.OnSearchSelectKey(event)">
-<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Todo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Clases</a></div>
+<a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(0)"><span class="SelectionMark">&#160;</span>Todo</a><a class="SelectItem" href="javascript:void(0)" onclick="searchBox.OnSelectItem(1)"><span class="SelectionMark">&#160;</span>Estructuras de Datos</a></div>
 
 <!-- iframe showing the search results (closed by default) -->
 <div id="MSearchResultsWindow">
@@ -129,7 +128,7 @@ int(*&#160;</td><td class="memItemRight" valign="bottom"><b>cs_SC</b> )(int band
 </iframe>
 </div>
 
-<hr class="footer"/><address class="footer"><small>Generado el Jueves, 18 de Agosto de 2011 15:53:40 para reeview por&#160;
+<hr class="footer"/><address class="footer"><small>Generado el Viernes, 19 de Agosto de 2011 01:43:21 para reeview por&#160;
 <a href="http://www.doxygen.org/index.html">
 <img class="footer" src="doxygen.png" alt="doxygen"/></a> 1.7.3 </small></address>
 </body>
