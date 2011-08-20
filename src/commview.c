@@ -1,3 +1,7 @@
+/** @file commview.c
+    @brief Éste es el archivo principal del proyecto.
+ */
+
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <string.h>
@@ -22,144 +26,126 @@
 /*!
 	\def BUFSIZE
  
-	\brief Tamaño estandar para la inicializacion de una libreria 
-	desconocida
+	\brief Tamaño estandar para la inicializacion de una libreria desconocida.
 
-	Se supone que es el tamaño de un buffer, pero se desconoce su 
-procedencia y su importancia. En algún momento descubriremos para qué sirve
-
+	Se supone que es el tamaño de un buffer, pero se desconoce su procedencia y su
+	importancia. En algún momento descubriremos para qué sirve.
 */
 
 /*! 
 	\struct CV_Header
 
-	Esta estructura parece que es necesaria usarla, pero al
-	parecer, no se sabe muy bien lo que es. 
-
+	Esta estructura parece que es necesaria usarla, pero al parecer, no se sabe
+	muy bien lo que es.
 */
-struct CV_Header {
-        unsigned int TickCount; // GetTickCount() / 1000 at time of packet
-        unsigned int Micros;    // Microsecond counter at time of packet
-        /* The following might be backwards, unsure */
-        int PacketSize;         // Full packet size?
-        int SliceSize;          // Truncated packet size?
-        int Unknown;            // Not sure what this is.
+struct CV_Header
+{
+	unsigned int TickCount; // GetTickCount() / 1000 at time of packet
+	unsigned int Micros;    // Microsecond counter at time of packet
+	/* The following might be backwards, unsure */
+	int PacketSize;         // Full packet size?
+	int SliceSize;          // Truncated packet size?
+	int Unknown;            // Not sure what this is.
 };
 
 /*!
 	\struct CV_Header2
 
-	Esta estructura, parece que es una cabecera sobre los datos que da el
-	sistema para saber si se ha recibido bien el paquete.
-
+	Esta estructura, parece que es una cabecera sobre los datos que da el sistema
+	para saber si se ha recibido bien el paquete.
 */
-struct CV_Header2 {
-        char ErrorFlag;   // ErrorFlag & 1 = CRC error
-        char Unknown2[6]; // Unknown
-        char Power;       // Power
-        char Unknown3[6]; // Unknown
+struct CV_Header2
+{
+	char ErrorFlag;   // ErrorFlag & 1 = CRC error
+	char Unknown2[6]; // Unknown
+	char Power;       // Power
+	char Unknown3[6]; // Unknown
 };
 
 
 /*!
-
 	\struct cstate
 
 	Declara una variable llamada _cs, que parece ser una especie de super estructura
-	que utiliza para almacenar todo tipo de información sobre el estado de la conexión 
-
+	que utiliza para almacenar todo tipo de información sobre el estado de la conexión.
 */
-
-struct cstate {
-	char		cs_param[256];
-	int		cs_ioctls;
+struct cstate
+{
+	char			cs_param[256];
+	int				cs_ioctls;
 	struct ifreq	cs_ifreq;
-	char		cs_guid[256];
-	HKEY		cs_key;
-	int		cs_chan;
+	char			cs_guid[256];
+	HKEY			cs_key;
+	int				cs_chan;
 	volatile int	cs_restarting;
-	void		*cs_lib; // Puntero a libreria dinamica para las funciones de abajo
-	pthread_mutex_t	cs_mtx; // un mecanismo de control de sincronizacion mutex
-	int		cs_debug;
-	
-/*
- * Aqui se guardaran los punteros a funciones que estan dentro de una dll
- */
-	char		(__cdecl *cs_F1)(int Code);
-	char		(__cdecl *cs_F2)(void);
-	char		(__cdecl *cs_T1)(int Size, unsigned char *Buffer);
-	char		(__cdecl *cs_CC)(int Channel);
-	char		(__cdecl *cs_S1)(int Channel);
+	void			*cs_lib; // Puntero a libreria dinámica para las funciones de abajo
+	pthread_mutex_t	cs_mtx; // un mecanismo de control de sincronización mutex
+	int				cs_debug;
+
+	// Aquí se guardaran los punteros a funciones que están dentro de una dll
+	char	(__cdecl *cs_F1)(int Code);
+	char	(__cdecl *cs_F2)(void);
+	char	(__cdecl *cs_T1)(int Size, unsigned char *Buffer);
+	char	(__cdecl *cs_CC)(int Channel);
+	char	(__cdecl *cs_S1)(int Channel);
 	int		(__cdecl *cs_S5)(unsigned char *Buffer, int Length);
 	int		(__cdecl *cs_GN)(wchar_t *);
 	int		(*cs_SC)(int band);
 } _cs;
 
 /*!
-
-	\fn static struct cstate *get_cs(void) 
+	\fn static struct cstate *get_cs(void)
 	
 	\brief Devuelve la estructura global _cs
 
-	\return	_cs La estructura global que contiene los datos con los que se trabaja.	
-
+	\return	_cs La estructura global que contiene los datos con los que se trabaja.
 */
- 
 static struct cstate *get_cs(void) 
 {
 	return &_cs; 
 }
 
 /*!
-
 	\fn static int print_error(char *fmt, ...)
 
 	\brief Saca por el identificador 1 (stdin) el texto que reciba
 
 	\param *fmt conjunto de argumentos con formato tipo printf
 
-	\return Devuelve -1 para señalar que ha habido un error
-
+	\return Devuelve -1 para señalar que ha habido un error.
 */
-
-static int print_error(char *fmt, ...) // ... -> es una manera de decir que recibe un numero indeterminado de argumentos
+static int print_error(char *fmt, ...) // ... -> es una manera de decir que recibe un número indeterminado de argumentos
 {
 	va_list ap;
 
-	va_start(ap, fmt);// Inicializa la variable ap para que lo pueda usar 
-	vprintf(fmt, ap);// Segun lo que he visto, esta función imprime todo lo que le llega.
-	va_end(ap);// Libera la variable ap
-	printf("\n"); // Y pone un salto de linea en el la pantalla (seguramente log)
+	va_start(ap, fmt);	// Inicializa la variable ap para que lo pueda usar 
+	vprintf(fmt, ap);	// Según lo que he visto, esta función imprime todo lo que le llega.
+	va_end(ap); 		// Libera la variable ap
+	printf("\n"); 		// Y pone un salto de linea en el la pantalla (seguramente log)
 
-	return -1; // Devuelve error
+	return -1; 			// Devuelve error
 }
 
-
 /*!
-
 	\fn static int print_error(char *fmt, ...)
 
 	\brief Saca por el identificador 1 (stdin) el texto que reciba
 
-	\param *fmt conjunto de argumentos con formato tipo printf
-
+	\param *fmt conjunto de argumentos con formato tipo printf.
 */
-
-
 static void print_debug(char *fmt, ...)
 {
-	struct cstate *cs = get_cs(); //inicializa la direccion de la variable cs a la de _cs
-	va_list ap; // Crea una variable de control de argumentos variables
+	struct cstate *cs = get_cs();	// Inicializa la dirección de la variable cs a la de _cs
+	va_list ap; 					// Crea una variable de control de argumentos variables
 
-	if (!cs->cs_debug) // Comprueba que esté configurado en modo debug
-		return; // Sale si no lo esta
+	if (!cs->cs_debug) 				// Comprueba que esté configurado en modo debug
+		return; 					// Sale si no lo esta
 
-	va_start(ap, fmt); //Inicializa la variable de lista
-	vprintf(fmt, ap); // Saca un solo argumento de tipo desconocido
-	va_end(ap); // Libera la variable ap
-	printf("\n"); // Pone un salto de linea
+	va_start(ap, fmt); 				// Inicializa la variable de lista
+	vprintf(fmt, ap); 				// Saca un solo argumento de tipo desconocido
+	va_end(ap); 					// Libera la variable ap
+	printf("\n"); 					// Pone un salto de linea
 }
-
 
 /*!
 
@@ -169,21 +155,18 @@ static void print_debug(char *fmt, ...)
 
 	\return Devuelve si ha habido error o success
 
-	\brief	Inicializa las librerias a través de los punteros a funciones de la estructura
+	\brief Inicializa las librerias a través de los punteros a funciones de la estructura.
 
 */
-
-
 static int do_init_lib(struct cstate *cs)
 {
-
 	/* init */
-        if (!cs->cs_F1(BUFSIZE))
-		return print_error("F1");
-       
-       	/* start monitor */
-        if (!cs->cs_S1(cs->cs_chan))
-		return print_error("S1");
+	if (!cs->cs_F1(BUFSIZE))
+	return print_error("F1");
+   
+	/* start monitor */
+	if (!cs->cs_S1(cs->cs_chan))
+	return print_error("S1");
 
 	/* change chan */
 	if (!cs->cs_CC(cs->cs_chan))
