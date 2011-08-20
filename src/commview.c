@@ -1,6 +1,6 @@
 /** @file commview.c
     @brief Éste es el archivo principal del proyecto.
- */
+*/
 
 #include <net/if.h>
 #include <sys/ioctl.h>
