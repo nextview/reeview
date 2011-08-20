@@ -165,7 +165,7 @@ static void print_debug(char *fmt, ...)
 
 	\return Devuelve si ha habido error o success
 
-	\brief Inicializa las librerias a travÃ©s de los punteros a funciones de la estructura.
+	\brief Inicializa las librerias a través de los punteros a funciones de la estructura.
 
 */
 
