@@ -1,5 +1,5 @@
-/** @file commview.c
-    @brief Éste es el archivo principal del proyecto.
+/*! \file commview.c
+    \brief Éste es el archivo principal del proyecto.
 */
 
 #include <net/if.h>
@@ -22,15 +22,17 @@
 #include "osdep.h"
 #include "tap-win32/common.h"
 
-#define BUFSIZE 0x3E8000 
 /*!
-	\def BUFSIZE
- 
-	\brief Tamaño estandar para la inicializacion de una libreria desconocida.
 
-	Se supone que es el tamaño de un buffer, pero se desconoce su procedencia y su
-	importancia. En algún momento descubriremos para qué sirve.
+        \brief Tamaño estandar para la inicializacion de una libreria desconocida.
+
+        Se supone que es el tamaño de un buffer, pero se desconoce su procedencia y su
+        importancia. En algún momento descubriremos para qué sirve.
+
 */
+
+#define BUFSIZE 0x3E8000 
+
 
 /*! 
 	\struct CV_Header
@@ -38,6 +40,7 @@
 	Esta estructura parece que es necesaria usarla, pero al parecer, no se sabe
 	muy bien lo que es.
 */
+
 struct CV_Header
 {
 	unsigned int TickCount; // GetTickCount() / 1000 at time of packet
@@ -48,12 +51,14 @@ struct CV_Header
 	int Unknown;            // Not sure what this is.
 };
 
+
 /*!
 	\struct CV_Header2
 
 	Esta estructura, parece que es una cabecera sobre los datos que da el sistema
 	para saber si se ha recibido bien el paquete.
 */
+
 struct CV_Header2
 {
 	char ErrorFlag;   // ErrorFlag & 1 = CRC error
@@ -67,8 +72,9 @@ struct CV_Header2
 	\struct cstate
 
 	Declara una variable llamada _cs, que parece ser una especie de super estructura
-	que utiliza para almacenar todo tipo de información sobre el estado de la conexión.
+	que utiliza para almacenar todo tipo de informaciÃ³n sobre el estado de la conexiÃ³n.
 */
+
 struct cstate
 {
 	char			cs_param[256];
@@ -93,52 +99,57 @@ struct cstate
 	int		(*cs_SC)(int band);
 } _cs;
 
+
 /*!
-	\fn static struct cstate *get_cs(void)
 	
 	\brief Devuelve la estructura global _cs
 
 	\return	_cs La estructura global que contiene los datos con los que se trabaja.
 */
+
 static struct cstate *get_cs(void) 
 {
 	return &_cs; 
 }
 
-/*!
-	\fn static int print_error(char *fmt, ...)
 
-	\brief Saca por el identificador 1 (stdin) el texto que reciba
+/*!
+
+	\brief Saca por el identificador 1 (stdin) el texto que reciba, devolviendo error.
 
 	\param *fmt conjunto de argumentos con formato tipo printf
 
-	\return Devuelve -1 para señalar que ha habido un error.
+	\return Devuelve -1 para seÃ±alar que ha habido un error.
+
 */
-static int print_error(char *fmt, ...) // ... -> es una manera de decir que recibe un número indeterminado de argumentos
+
+static int print_error(char *fmt, ...) // ... -> es una manera de decir que recibe un nÃºmero indeterminado de argumentos
 {
 	va_list ap;
 
 	va_start(ap, fmt);	// Inicializa la variable ap para que lo pueda usar 
-	vprintf(fmt, ap);	// Según lo que he visto, esta función imprime todo lo que le llega.
+	vprintf(fmt, ap);	// SegÃºn lo que he visto, esta funciÃ³n imprime todo lo que le llega.
 	va_end(ap); 		// Libera la variable ap
 	printf("\n"); 		// Y pone un salto de linea en el la pantalla (seguramente log)
 
 	return -1; 			// Devuelve error
 }
 
+
 /*!
-	\fn static int print_error(char *fmt, ...)
 
 	\brief Saca por el identificador 1 (stdin) el texto que reciba
 
 	\param *fmt conjunto de argumentos con formato tipo printf.
+
 */
+
 static void print_debug(char *fmt, ...)
 {
-	struct cstate *cs = get_cs();	// Inicializa la dirección de la variable cs a la de _cs
+	struct cstate *cs = get_cs();	// Inicializa la direcciÃ³n de la variable cs a la de _cs
 	va_list ap; 					// Crea una variable de control de argumentos variables
 
-	if (!cs->cs_debug) 				// Comprueba que esté configurado en modo debug
+	if (!cs->cs_debug) 				// Comprueba que estÃ© configurado en modo debug
 		return; 					// Sale si no lo esta
 
 	va_start(ap, fmt); 				// Inicializa la variable de lista
@@ -147,17 +158,17 @@ static void print_debug(char *fmt, ...)
 	printf("\n"); 					// Pone un salto de linea
 }
 
-/*!
 
-	\fn static int do_init_lib(struct cstate *cs)
+/*!
 
 	\param *cs Recibe una estructura cstate y rellena los punteros de funciones
 
 	\return Devuelve si ha habido error o success
 
-	\brief Inicializa las librerias a través de los punteros a funciones de la estructura.
+	\brief Inicializa las librerias a travÃ©s de los punteros a funciones de la estructura.
 
 */
+
 static int do_init_lib(struct cstate *cs)
 {
 	/* init */
@@ -233,7 +244,7 @@ static int get_name(struct cstate *cs, char *name)
  * ya lo repasare mas tarde.
  * Acabo de darme cuenta de que es posible que lo que este haciendo, sea que ya que no va a volver a pasar por ese
  * puntero, puede estar modificando directamente el puntero del nombre, en cuyo caso, estaria convirtiendo el nombre a 
- * un char (¿¿??), con su consiguiente perdida de informacion, y finalizando el array para darle el tratamiento de un
+ * un char (Â¿Â¿??), con su consiguiente perdida de informacion, y finalizando el array para darle el tratamiento de un
  * string
  */
 	}
@@ -248,7 +259,7 @@ static int get_guid(struct cstate *cs, char *param)
 				 * No entiendo el sentido de tener espacio para 16 adaptadores de red de todos modos
 				 * esta estructura es de Windows: http://msdn.microsoft.com/en-us/library/aa366062(v=vs.85).aspx
 				 */	
-	DWORD len = sizeof(ai); // Esta parece estar destinada a tener el tamaño que ocupa un puntero a estructura 
+	DWORD len = sizeof(ai); // Esta parece estar destinada a tener el tamaÃ±o que ocupa un puntero a estructura 
 				// http://msdn.microsoft.com/en-us/library/cc230318
 	PIP_ADAPTER_INFO p; // Este parece ser un puntero a una estructura de adaptador
 	char name[1024]; // Sitio para el nombre
@@ -305,7 +316,7 @@ static int open_key(struct cstate *cs, char *name)
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, key, 0, KEY_ALL_ACCESS, &cs->cs_key) != ERROR_SUCCESS)
 		return print_error("RegOpenKeyEx()");
 /*
- * Aqui parece que acaba de abrir un registro, y en el siguiente, compara el valor del registro con ¿¿REG_SZ??
+ * Aqui parece que acaba de abrir un registro, y en el siguiente, compara el valor del registro con Â¿Â¿REG_SZ??
  */
 
 	/* check if its our guid */
@@ -665,8 +676,6 @@ static int reset(struct cstate *cs)
 
 /*!
 
-	\fn int cygwin_set_mac(unsigned char *mac)
-
 	\param *mac Contiene la mac como string, con todas las letras juntas y
 	en tipos char
 
@@ -674,15 +683,15 @@ static int reset(struct cstate *cs)
 
 	\brief Sustituye la mac actual del dispositivo por la recibida
 
-	Primero, imprime la funci�n recibida en un string temporal, comprobando
-	que nunca haya un n�mero diferente de conversiones que 2, y que adem�s,
-	est�n en hexadecimal.
+	Primero, imprime la función recibida en un string temporal, comprobando
+	que nunca haya un número diferente de conversiones que 2, y que además,
+	estén en hexadecimal.
 	Segundo, que la mac anterior y la nueva sean diferentes, en caso 
-	contrario, no devolver� error.
+	contrario, no devolverá error.
 	Tercero, intenta cambiar la MAC a la nueva, devolviendo error si no lo 
 	consigue, o si al resetear cs devuelve error.
 
-	\see static int reset(struct cstate *cs)
+	\see reset()
 	
 
 */
@@ -726,11 +735,9 @@ int cygwin_set_mac(unsigned char *mac)
 
 /*!
 
-	\fn void cygwin_close(void)
-
 	\brief Cierra todas las conexiones con cygwin
 
-	La funci�n en s� no tiene gran misterio, invoca funciones para cerrar 
+	La función en sí no tiene gran misterio, invoca funciones para cerrar 
 	\a cs->cs_ioctls, \a cs->cs_key y \a cs->cs_lib.
 
 */
