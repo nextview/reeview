@@ -678,6 +678,32 @@ static int reset(struct cstate *cs)
         return rc;
 }
 
+
+
+/*!
+
+	\fn int cygwin_set_mac(unsigned char *mac)
+
+	\param *mac Contiene la mac como string, con todas las letras juntas y
+	en tipos char
+
+	\return Devuelve error (-1) o success (0)
+
+	\brief Sustituye la mac actual del dispositivo por la recibida
+
+	Primero, imprime la función recibida en un string temporal, comprobando
+	que nunca haya un número diferente de conversiones que 2, y que además,
+	estén en hexadecimal.
+	Segundo, que la mac anterior y la nueva sean diferentes, en caso 
+	contrario, no devolverá error.
+	Tercero, intenta cambiar la MAC a la nueva, devolviendo error si no lo 
+	consigue, o si al resetear cs devuelve error.
+
+	\see static int reset(struct cstate *cs)
+	
+
+*/
+
 int cygwin_set_mac(unsigned char *mac)
 {
 	struct cstate *cs = get_cs();
@@ -713,6 +739,18 @@ int cygwin_set_mac(unsigned char *mac)
 
         return 0;
 }
+
+
+/*!
+
+	\fn void cygwin_close(void)
+
+	\brief Cierra todas las conexiones con cygwin
+
+	La función en sí no tiene gran misterio, invoca funciones para cerrar 
+	\a cs->cs_ioctls, \a cs->cs_key y \a cs->cs_lib.
+
+*/
 
 void cygwin_close(void)
 {
