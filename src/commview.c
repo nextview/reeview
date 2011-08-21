@@ -619,9 +619,14 @@ static int restart(struct cstate *cs)
 	return rc;
 }
 
+/*!
+
+	\brief 
+
+*/
 static int reset(struct cstate *cs)
 {
-        HDEVINFO hdi;
+        HDEVINFO hdi; // 
         SP_DEVINFO_DATA did;
         int i;
         int rc = -1;
