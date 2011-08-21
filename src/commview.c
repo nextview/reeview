@@ -621,15 +621,17 @@ static int restart(struct cstate *cs)
 
 /*!
 
-	\brief 
+	\brief Vuelve a reinicializar el dispositivo
+
+	 
 
 */
 static int reset(struct cstate *cs)
 {
-        HDEVINFO hdi; // 
-        SP_DEVINFO_DATA did;
-        int i;
-        int rc = -1;
+        HDEVINFO hdi; // Crea una variable que contenga información sobre dispositivos http://msdn.microsoft.com/en-us/library/ff551072(v=vs.85).aspx
+        SP_DEVINFO_DATA did; // Contiene la información de un dispositivo que es parte del set de dispositivos de la anterior variable http://msdn.microsoft.com/en-us/library/ff552344(v=vs.85).aspx 
+        int i; // Contador
+        int rc = -1;//
 
         hdi = SetupDiGetClassDevs(&GUID_DEVCLASS_NET, NULL, NULL,
                           DIGCF_PRESENT);
