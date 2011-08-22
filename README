@@ -3,5 +3,5 @@ Este trabajo está bajo la licencia de GPLv3.
 
 Está totalmente prohibido:
 - Generar más documentación a través del doxygen. Se ejecutará el doxygen para ver como queda (me acabo de dar cuenta de que el tamaño crece rápido).
-- Incluir binarios en el repositorio, como por ejemplo compilaciones o programas objeto.
+- Incluir binarios en el repositorio, como por ejemplo: compilaciones o programas objeto.
 - Crear branches o tags.
